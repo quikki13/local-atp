@@ -230,20 +230,20 @@
 //   }
 // }
 
-// export async function GET() {
-//   try {
-//     const result = await sql.begin((sql) => [
-//       seedUsers(),
-//       seedPlayers(),
-//       seedGames(),
-//       seedTours(),
-//       seedSeasons(),
-//       seedToursTable(),
-//       seedSeasonsTable(),
-//     ]);
+export async function GET() {
+  // try {
+  //   const result = await sql.begin((sql) => [
+  //     seedUsers(),
+  //     seedPlayers(),
+  //     seedGames(),
+  //     seedTours(),
+  //     seedSeasons(),
+  //     seedToursTable(),
+  //     seedSeasonsTable(),
+  //   ]);
 
-//     return Response.json({ message: "Database seeded successfully" });
-//   } catch (error) {
-//     return Response.json({ error }, { status: 500 });
-//   }
-// }
+  //   return Response.json({ message: "Database seeded successfully" });
+  // } catch (error) {
+  //   return Response.json({ error }, { status: 500 });
+  // }
+}
