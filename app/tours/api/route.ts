@@ -3,7 +3,7 @@ import postgres from "postgres";
 import { ITourApi, ITour, ISeasonMap } from "../types";
 import { ISeason } from "@/app/seasons/types";
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
+const sql = postgres('postgresql://neondb_owner:npg_VWmq7aQc3MAi@ep-sparkling-mud-a4k5fh2h-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require'!, { ssl: "require" });
 
 const getTours = async () => {
   const result: ITour[] = [];

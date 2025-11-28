@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button, Table } from "@radix-ui/themes";
+import { Button, Table, Dialog } from "@radix-ui/themes";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
+
+import { DialogContent } from './dialog';
 
 import { tableHead, tableBody, skeletonBody } from "./helpers";
 
@@ -30,16 +32,21 @@ export default function Page() {
 
   return (
     <main className='flex min-h-screen flex-col'>
-      <div className='flex flex-col gap-y-2 items-start shrink-0 mt-4'>
-        <Button variant='surface' className='cursor-pointer'>
-          <PlusCircledIcon /> Add new Tour
-        </Button>
+      <Dialog.Root>
+        <div className='flex flex-col gap-y-2 items-start shrink-0 mt-4'>
+          <Dialog.Trigger>
+            <Button variant='surface' className='cursor-pointer'>
+              <PlusCircledIcon /> Add new Tour
+            </Button>
+          </Dialog.Trigger>
 
-        <Table.Root variant='surface' className='w-full'>
-          {tableHead(!tours.length)}
-          <Table.Body>{!tours.length ? skeletonBody() : tableBody(tours)}</Table.Body>
-        </Table.Root>
-      </div>
+          <Table.Root variant='surface' className='w-full'>
+            {tableHead(!tours.length)}
+            <Table.Body>{!tours.length ? skeletonBody() : tableBody(tours)}</Table.Body>
+          </Table.Root>
+        </div>
+        <DialogContent />
+      </Dialog.Root>
     </main>
   );
 }
