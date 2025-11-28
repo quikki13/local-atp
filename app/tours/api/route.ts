@@ -27,10 +27,10 @@ const getTours = async () => {
 
 export async function GET() {
   try {
-    const headers = new Headers({ "content-type": "application/json" });
+    // const headers = new Headers({ "content-type": "application/json" });
     const response = await getTours();
 
-    return Response.json(response, { headers });
+    return Response.json(response);
   } catch (error) {
     return Response.json(error, { status: 500 });
   }
