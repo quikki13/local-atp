@@ -4,16 +4,17 @@ import { useState, useEffect } from "react";
 import { Button, Table, Dialog } from "@radix-ui/themes";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 
-import { DialogContent } from './dialog';
+import { DialogContent } from "./dialog";
 
 import { tableHead, tableBody, skeletonBody } from "./helpers";
 
-import { URLS } from "../consts/common";
+import { URLS } from "@/consts/common";
 
-import { ITour } from "./types";
+import { ITourWithSeason } from "./types";
 
 export default function Page() {
-  const [tours, setTours] = useState<ITour[]>([]);
+  const initdata = { tours: [], seasons: [] };
+  const [data, setData] = useState<ITourWithSeason>(initdata);
 
   const getData = () =>
     fetch(`${URLS.tours}${URLS.api}`).then(async (response) => {
@@ -22,8 +23,8 @@ export default function Page() {
       if (!response.ok) {
         throw new Error(`Ошибка сети: ${response.status}`);
       }
-      const data = await response.json();
-      setTours(data);
+      const data: ITourWithSeason = await response.json();
+      setData(data);
     });
 
   useEffect(() => {
@@ -41,11 +42,13 @@ export default function Page() {
           </Dialog.Trigger>
 
           <Table.Root variant='surface' className='w-full'>
-            {tableHead(!tours.length)}
-            <Table.Body>{!tours.length ? skeletonBody() : tableBody(tours)}</Table.Body>
+            {tableHead(!data.tours.length)}
+            <Table.Body>
+              {!data.tours.length ? skeletonBody() : tableBody(data.tours, setData)}
+            </Table.Body>
           </Table.Root>
         </div>
-        <DialogContent />
+        <DialogContent seasons={data.seasons} setToursData={setData} />
       </Dialog.Root>
     </main>
   );

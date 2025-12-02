@@ -1,0 +1,63 @@
+"use server";
+
+import { v4 as uuidv4 } from "uuid";
+import postgres from "postgres";
+
+import { revalidatePath } from "next/cache";
+
+import { URLS } from "@/app/consts/common";
+
+import { ITour } from "@/app/tours/types";
+
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
+
+export const createTour = async (data: ITour) => {
+  const { year, month, day, season_id } = data;
+  const path = URLS.tours;
+  try {
+    await sql`
+    INSERT INTO tours (id, season_id, year, month, day)
+    VALUES (${uuidv4()}, ${season_id}, ${year}, ${month}, ${day})
+  `;
+  } catch (err) {
+    console.error(err);
+  }
+  revalidatePath(path);
+};
+
+export const removeTour = async (id: string) => {
+  const path = URLS.tours;
+  await sql`DELETE FROM tours WHERE id = ${id}`;
+  revalidatePath(path);
+};
+
+// const UpdateInvoice = FormSchema.omit({ id: true, date: true });
+
+// export async function updateInvoice(id: string, formData: FormData) {
+//   const { customerId, amount, status } = UpdateInvoice.parse({
+//     customerId: formData.get("customerId"),
+//     amount: formData.get("amount"),
+//     status: formData.get("status"),
+//   });
+
+//   const amountInCents = amount * 100;
+
+//   try {
+//     await sql`
+//     UPDATE invoices
+//     SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+//     WHERE id = ${id}
+//   `;
+//   } catch (err) {
+//     console.log(err);
+//   }
+//     revalidatePath("/dashboard/invoices");
+//     redirect("/dashboard/invoices");
+// }
+
+// export async function deleteInvoice(id: string) {
+//   throw new Error('Failed to Delete Invoice');
+//     await sql`DELETE FROM invoices WHERE id = ${id}`;
+//     revalidatePath("/dashboard/invoices");
+
+// }

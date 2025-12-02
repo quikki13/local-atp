@@ -1,3 +1,6 @@
+import { ISeason } from "@/app/seasons/types";
+import { SetStateAction, Dispatch } from "react";
+
 export interface ITourApi {
   id: string;
   season_id: string;
@@ -7,9 +10,20 @@ export interface ITourApi {
 }
 
 export interface ITour extends ITourApi {
-  season: string
-};
+  // name of season
+  season: string;
+}
 
 export interface ISeasonMap {
   [key: string]: string;
+}
+
+export interface ITourWithSeason {
+  tours: ITour[];
+  seasons: Omit<ISeason, "year">[];
+}
+
+export interface IDialogContentProps {
+  seasons: Omit<ISeason, "year">[];
+  setToursData: Dispatch<SetStateAction<ITourWithSeason>>;
 }

@@ -1,22 +1,28 @@
+import { Dispatch, SetStateAction } from "react";
 import { Button, Table, Skeleton } from "@radix-ui/themes";
 import { TrashIcon } from "@radix-ui/react-icons";
 
-import { ITour } from "./types";
+import { removeTour } from "@/api/actions";
 
-export const tableBody = (tours: ITour[]) => {
+import { ITour, ITourWithSeason } from "./types";
+
+export const tableBody = (tours: ITour[], setData: Dispatch<SetStateAction<ITourWithSeason>>) => {
   return tours.map((tour) => {
     const date = `${tour.day}.${tour.month}.${tour.year}`;
+
+    const onClick = () => {
+      removeTour(tour.id);
+      setData((prev) => {
+        return { ...prev, tours: prev.tours.filter((el) => el.id !== tour.id) };
+      });
+    };
+
     return (
       <Table.Row align='center' key={tour.id} onClick={() => console.log("click on tour")}>
         <Table.RowHeaderCell>{tour.season}</Table.RowHeaderCell>
         <Table.Cell>{date}</Table.Cell>
         <Table.Cell>
-          <Button
-            variant='surface'
-            color='crimson'
-            className='cursor-pointer'
-            onClick={() => console.log("remove item")}
-          >
+          <Button variant='surface' color='crimson' className='cursor-pointer' onClick={onClick}>
             <TrashIcon />
           </Button>
         </Table.Cell>
@@ -29,9 +35,9 @@ export const skeletonBody = () => {
   return (
     <Table.Row align='center'>
       <Table.RowHeaderCell>
-        <Skeleton/>
+        <Skeleton />
       </Table.RowHeaderCell>
-         <Table.Cell>
+      <Table.Cell>
         <Skeleton />
       </Table.Cell>
       <Table.Cell>
@@ -45,8 +51,8 @@ export const tableHead = (isSkeleton: boolean) => {
   return (
     <Table.Header>
       <Table.Row>
-        <Table.ColumnHeaderCell>{isSkeleton ? <Skeleton /> : 'Season'}</Table.ColumnHeaderCell>
-        <Table.ColumnHeaderCell>{isSkeleton ? <Skeleton /> : 'Tour'}</Table.ColumnHeaderCell>
+        <Table.ColumnHeaderCell>{isSkeleton ? <Skeleton /> : "Season"}</Table.ColumnHeaderCell>
+        <Table.ColumnHeaderCell>{isSkeleton ? <Skeleton /> : "Tour"}</Table.ColumnHeaderCell>
         <Table.ColumnHeaderCell>{isSkeleton && <Skeleton />}</Table.ColumnHeaderCell>
       </Table.Row>
     </Table.Header>
