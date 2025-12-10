@@ -23,7 +23,8 @@
       "@/components/*": ["./app/components/*"],
       "@/app/*": ["./app/*"],
       "@/api/*": ["./app/api/*"],
-      "@/consts/*": ["./app/consts/*"]
+      "@/consts/*": ["./app/consts/*"],
+      "@/utils/*": ["./app/utils/*"]
     }
   },
   "include": [

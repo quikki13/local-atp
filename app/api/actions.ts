@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { URLS } from "@/app/consts/common";
 
 import { ITour } from "@/app/tours/types";
+import { ISeason } from "@/app/seasons/types";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
@@ -28,6 +29,20 @@ export const createTour = async (data: ITour) => {
 export const removeTour = async (id: string) => {
   const path = URLS.tours;
   await sql`DELETE FROM tours WHERE id = ${id}`;
+  revalidatePath(path);
+};
+
+export const createSeason = async (data: { year: string }) => {
+  const { year } = data;
+  const path = URLS.tours;
+  try {
+    await sql`
+    INSERT INTO seasons (id, year, name)
+    VALUES (${uuidv4()}, ${Number(year)}, ${`Season ${year}`})
+  `;
+  } catch (err) {
+    console.error(err);
+  }
   revalidatePath(path);
 };
 
