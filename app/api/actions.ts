@@ -34,11 +34,25 @@ export const removeTour = async (id: string) => {
 
 export const createSeason = async (data: { year: string }) => {
   const { year } = data;
-  const path = URLS.tours;
+  const path = URLS.seasons;
   try {
     await sql`
     INSERT INTO seasons (id, year, name)
     VALUES (${uuidv4()}, ${Number(year)}, ${`Season ${year}`})
+  `;
+  } catch (err) {
+    console.error(err);
+  }
+  revalidatePath(path);
+};
+
+export const createPlayer = async (data: { name: string, email?: string }) => {
+  const { name, email } = data;
+  const path = URLS.players;
+  try {
+    await sql`
+    INSERT INTO players (id, name, email, image_url)
+    VALUES (${uuidv4()}, ${name}, ${email || ''}, ${'/players/no-avatar.png'})
   `;
   } catch (err) {
     console.error(err);
