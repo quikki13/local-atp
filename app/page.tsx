@@ -1,7 +1,7 @@
 export default function Home() {
   return (
     <main className='flex min-h-screen flex-col mt-4'>
-      <div className='flex flex-col gap-y-2 items-start shrink-0 items-center bg-blue-50 rounded-lg p-4'>
+      <div className='flex flex-col gap-y-2 items-start shrink-0 bg-blue-50 rounded-lg p-4'>
         <h3 className='text-xl md:text-2xl'>
           Как работать с <span className='font-bold'>Local atp</span>
         </h3>
