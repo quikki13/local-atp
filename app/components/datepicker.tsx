@@ -5,7 +5,7 @@ export const Datepicker = ({
   onChange,
 }: {
   value: string;
-  onChange: ChangeEventHandler<HTMLInputElement>
+  onChange: ChangeEventHandler<HTMLInputElement>;
 }) => {
   return (
     <span className='datepicker-toggle'>
@@ -14,7 +14,7 @@ export const Datepicker = ({
         id='datepicker'
         value={value}
         onChange={onChange}
-        className='text-gray-400 border-1 border-gray-300 rounded-sm border-solid pt-[2px] pb-[2px] pr-[4px] pl-[4px]'
+        className='text-gray-400 border border-gray-300 rounded-sm border-solid pt-[2px] pb-[2px] pr-[4px] pl-[4px]'
       />
     </span>
   );

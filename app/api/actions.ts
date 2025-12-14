@@ -8,7 +8,6 @@ import { revalidatePath } from "next/cache";
 import { URLS } from "@/app/consts/common";
 
 import { ITour } from "@/app/tours/types";
-import { ISeason } from "@/app/seasons/types";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
