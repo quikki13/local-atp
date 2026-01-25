@@ -76,9 +76,7 @@
 //         season_id UUID NOT NULL,
 //         tour_id UUID NOT NULL,
 //         time TIMESTAMP NOT NULL,
-//         year SMALLINT CHECK(year >= 1 AND year <= 9999),
-//         month SMALLINT CHECK(month BETWEEN 1 AND 12),
-//         day SMALLINT CHECK(day BETWEEN 1 AND 31),
+//         date VARCHAR(20) NOT NULL,
 //         player1 UUID NOT NULL,
 //         player2 UUID NOT NULL,
 //         player1_score INT NOT NULL,
@@ -94,9 +92,7 @@
 //           season_id,
 //           tour_id,
 //           time,
-//           year,
-//           month,
-//           day,
+//           date,
 //           player1,
 //           player1_score,
 //           player2,
@@ -104,8 +100,8 @@
 //           winner,
 //           winner_points
 //         }) => sql`
-//           INSERT INTO games(id, season_id, tour_id, time, year, month, day, player1, player2, player1_score, player2_score, winner, winner_points)
-//           VALUES (${id}, ${season_id}, ${tour_id}, ${time}, ${year}, ${month}, ${day}, ${player1}, ${player2}, ${player1_score}, ${player2_score}, ${winner}, ${winner_points})
+//           INSERT INTO games(id, season_id, tour_id, time, date, player1, player2, player1_score, player2_score, winner, winner_points)
+//           VALUES (${id}, ${season_id}, ${tour_id}, ${time}, ${date}, ${player1}, ${player2}, ${player1_score}, ${player2_score}, ${winner}, ${winner_points})
 //           ON CONFLICT (id) DO NOTHING;
 //       `,
 //       ),
@@ -125,17 +121,16 @@
 //     CREATE TABLE IF NOT EXISTS tours (
 //       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
 //       season_id UUID NOT NULL,
-//       year SMALLINT CHECK(year >= 1 AND year <= 9999),
-//       month SMALLINT CHECK(month BETWEEN 1 AND 12),
-//       day SMALLINT CHECK(day BETWEEN 1 AND 31)
+//       name VARCHAR(100),
+//       date VARCHAR(20)
 //     );
 //   `;
 
 //     const insertedTours = await Promise.all(
-//       tours.map(({ id, season_id, year, month, day }) => {
+//       tours.map(({ id, season_id, name, date }) => {
 //         return sql`
-//           INSERT INTO tours(id, season_id, year, month, day)
-//           VALUES (${id}, ${season_id}, ${year}, ${month}, ${day})
+//           INSERT INTO tours(id, season_id, name, date)
+//           VALUES (${id}, ${season_id}, ${name}, ${date})
 //           ON CONFLICT (id) DO NOTHING;
 //       `;
 //       }),

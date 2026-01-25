@@ -34,9 +34,7 @@ const games = [
     season_id: "7049439c-2d1d-4663-8c20-8f3eee319283",
     tour_id: "69ba133d-753b-4019-ab0e-eccfe1972435",
     time: "2025-11-15T12:00:00Z",
-    month: 11,
-    day: 15,
-    year: 2025,
+    date: "2025-11-15",
 
     player1: "d6e15727-9fe1-4961-8c5b-ea44a9bd81aa",
     player2: "3958dc9e-712f-4377-85e9-fec4b6a6442a",
@@ -52,9 +50,8 @@ const tours = [
   {
     id: "69ba133d-753b-4019-ab0e-eccfe1972435",
     season_id: "7049439c-2d1d-4663-8c20-8f3eee319283",
-    month: 11,
-    year: 2025,
-    day: 15,
+    name: '15 ноября 2025',
+    date: "2025-11-15",
   },
 ];
 

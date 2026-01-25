@@ -12,12 +12,12 @@ import { ITour } from "@/app/tours/types";
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
 export const createTour = async (data: ITour) => {
-  const { year, month, day, season_id } = data;
+  const { season_id, date } = data;
   const path = URLS.tours;
   try {
     await sql`
-    INSERT INTO tours (id, season_id, year, month, day)
-    VALUES (${uuidv4()}, ${season_id}, ${year}, ${month}, ${day})
+    INSERT INTO tours (id, season_id, date)
+    VALUES (${uuidv4()}, ${season_id}, ${date})
   `;
   } catch (err) {
     console.error(err);

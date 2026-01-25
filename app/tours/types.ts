@@ -4,9 +4,8 @@ import { SetStateAction, Dispatch } from "react";
 export interface ITourApi {
   id: string;
   season_id: string;
-  year: number;
-  month: number;
-  day: number;
+  name: string;
+  date: string;
 }
 
 export interface ITour extends ITourApi {

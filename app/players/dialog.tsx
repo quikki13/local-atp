@@ -10,15 +10,16 @@ export const DialogContent = () => {
   const getErrorMessage = (name: string) => {
     return (
       <ErrorMessage name={name}>
-        {(msg) => <div className='text-red-400 text-[14px]'>{msg}</div>}
+        {(msg) => <div className="text-red-400 text-[14px]">{msg}</div>}
       </ErrorMessage>
     );
   };
   return (
-    <Dialog.Content maxWidth='450px'>
+    <Dialog.Content maxWidth="450px">
       <Dialog.Title>Adding new Player</Dialog.Title>
-      <Dialog.Description size='2' mb='4'>
-        Paste the name of new player in format FirstName SecondName. Email is optional field
+      <Dialog.Description size="2" mb="4">
+        Paste the name of new player in format FirstName SecondName. Email is
+        optional field
       </Dialog.Description>
 
       <Formik
@@ -47,20 +48,20 @@ export const DialogContent = () => {
       >
         {({ isSubmitting }) => (
           <Form>
-            <Flex direction='column' gap='3'>
-              <Field type='name' name='name' placeholder='Player name' />
+            <Flex direction="column" gap="3">
+              <Field type="name" name="name" placeholder="Player name" />
               {getErrorMessage("name")}
-              <Field type='email' name='email' placeholder='Email' />
+              <Field type="email" name="email" placeholder="Email" />
               {getErrorMessage("email")}
             </Flex>
-            <Flex gap='3' mt='4' justify='end'>
+            <Flex gap="3" mt="4" justify="end">
               <Dialog.Close>
-                <Button variant='soft' color='gray'>
+                <Button variant="soft" color="gray">
                   Cancel
                 </Button>
               </Dialog.Close>
 
-              <Button type='submit' disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting}>
                 Submit
               </Button>
             </Flex>

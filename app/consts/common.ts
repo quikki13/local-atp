@@ -4,5 +4,7 @@ export const URLS = {
   seasons: '/seasons',
   players: '/players',
   add_games: '/add_games',
-  api:'/api'
+  api:'/api',
+  get_data: '/get_data',
+  get_tours: '/get_tours'
 }

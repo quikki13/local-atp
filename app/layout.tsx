@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@radix-ui/themes/styles.css";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import { AtpLogo } from "@/app/ui/atp-logo";
 import { Navigation } from '@/app/ui/navigation';
@@ -30,6 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
+      <SpeedInsights />
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Theme>
           <div className='flex min-h-screen flex-col p-6'>

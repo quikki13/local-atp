@@ -8,7 +8,6 @@ import { ITour, ITourWithSeason } from "./types";
 
 export const tableBody = (tours: ITour[], setData: Dispatch<SetStateAction<ITourWithSeason>>) => {
   return tours.map((tour) => {
-    const date = `${tour.day}.${tour.month}.${tour.year}`;
 
     const onClick = () => {
       removeTour(tour.id);
@@ -20,7 +19,7 @@ export const tableBody = (tours: ITour[], setData: Dispatch<SetStateAction<ITour
     return (
       <Table.Row align='center' key={tour.id} onClick={() => console.log("click on tour")}>
         <Table.RowHeaderCell>{tour.season}</Table.RowHeaderCell>
-        <Table.Cell>{date}</Table.Cell>
+        <Table.Cell>{tour.name}</Table.Cell>
         <Table.Cell>
           <Button variant='surface' color='crimson' className='cursor-pointer' onClick={onClick}>
             <TrashIcon />

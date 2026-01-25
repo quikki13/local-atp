@@ -17,12 +17,15 @@ export const DialogContent = ({ seasons, setToursData }: IDialogContentProps) =>
       const { date, season_id } = postData;
       const year = new Date(date).getFullYear();
       const month = new Date(date).getMonth() + 1;
+      const monthName = new Date(date).toLocaleString('en-US', { month: 'long' });
       const day = new Date(date).getDate();
 
+      const name = `${day} ${monthName} ${year}`;
+      const formatedDate = `${year}-${month}-${day}`;
+
       const prepearedPostData = {
-        year,
-        month,
-        day,
+        date: formatedDate,
+        name,
         season: seasons.find((el) => el.id === postData.season_id)?.name || "",
         season_id: season_id,
         id: uuidv4(),
