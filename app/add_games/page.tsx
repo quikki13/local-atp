@@ -8,6 +8,7 @@ import {
   Select as RadixSelect,
   TextField,
 } from "@radix-ui/themes";
+import { motion } from "motion/react";
 
 import {
   Formik,
@@ -104,253 +105,264 @@ export default function Page() {
                   <div>
                     {values.games.map((game, index) => {
                       return (
-                        <Flex
-                          direction="column"
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
                           key={game.id}
-                          gap="3"
-                          className="border-2 border-sky-500 rounded-lg mt-6 p-2"
+                          exit={{ opacity: 0 }}
                         >
-                          <Text className="font-semibold">{`Game ${index + 1}`}</Text>
+                          <Flex
+                            direction="column"
+                            key={game.id}
+                            gap="3"
+                            className="border-2 border-sky-500 rounded-lg mt-6 p-2"
+                          >
+                            <Text className="font-semibold">{`Game ${index + 1}`}</Text>
 
-                          {/* season */}
-                          <div className="flex flex-row items-center gap-1.5 w-1/2">
-                            <span className="text-gray-800">Season: </span>
-                            <Field
-                              name={`games[${index}].season_id`}
-                              type="select"
+                            {/* season */}
+                            <div className="flex flex-row items-center gap-1.5 w-1/2">
+                              <span className="text-gray-800">Season: </span>
+                              <Field
+                                name={`games[${index}].season_id`}
+                                type="select"
+                              >
+                                {/* @ts-ignore */}
+                                {({ field, form, meta }) => (
+                                  <Select
+                                    label="Season"
+                                    value={field.value}
+                                    onValueChange={(e) => {
+                                      form.setFieldValue(field.name, e);
+                                    }}
+                                    {...field}
+                                    placeholder="Select a season"
+                                  >
+                                    {data.seasons.map((season) => (
+                                      <RadixSelect.Item
+                                        key={season.id}
+                                        value={season.id}
+                                      >
+                                        {season.name}
+                                      </RadixSelect.Item>
+                                    ))}
+                                  </Select>
+                                )}
+                              </Field>
+                              {getErrorMessage(`games[${index}].season_id`)}
+                            </div>
+
+                            {/* tour */}
+                            <div className="flex flex-row items-center gap-1.5 w-1/2">
+                              <span className="text-gray-800">Tour: </span>
+                              <Field
+                                name={`games[${index}].tour_id`}
+                                label="tour"
+                                className="min-w-[100px]"
+                              >
+                                {/* @ts-ignore */}
+                                {({ field, form, meta }) => (
+                                  <Select
+                                    label="Tour"
+                                    value={field.value}
+                                    onValueChange={(e) => {
+                                      form.setFieldValue(field.name, e);
+                                    }}
+                                    {...field}
+                                    placeholder="Select a season"
+                                  >
+                                    {game.season_id &&
+                                      data.tours[game.season_id].map((tour) => (
+                                        <RadixSelect.Item
+                                          key={tour.id}
+                                          value={tour.id}
+                                        >
+                                          {tour.name}
+                                        </RadixSelect.Item>
+                                      ))}
+                                  </Select>
+                                )}
+                              </Field>
+                              {getErrorMessage(`games[${index}].tour_id`)}
+                            </div>
+
+                            {/* player 1 */}
+                            <div
+                              className="flex flex-row 
+              items-center gap-1.5 max-sm:grid max-sm:grid-cols-6 max-sm:items-center 
+              max-sm:p-1 max-sm:border max-sm:border-orange-300 
+              max-sm:rounded-lg"
                             >
-                              {/* @ts-ignore */}
-                              {({ field, form, meta }) => (
-                                <Select
-                                  label="Season"
-                                  value={field.value}
-                                  onValueChange={(e) => {
-                                    form.setFieldValue(field.name, e);
-                                  }}
-                                  {...field}
-                                  placeholder="Select a season"
+                              <span className="text-gray-800 max-sm:col-span-1 max-sm:col-start-1">
+                                Player 1:{" "}
+                              </span>
+
+                              <div className="max-sm:col-span-2 max-sm:col-start-2">
+                                <Field
+                                  className="min-w-[100px]"
+                                  name={`games[${index}].player1`}
                                 >
-                                  {data.seasons.map((season) => (
-                                    <RadixSelect.Item
-                                      key={season.id}
-                                      value={season.id}
+                                  {({ field, form, meta }: FieldProps) => (
+                                    <Select
+                                      label="Player1"
+                                      onValueChange={(e) => {
+                                        form.setFieldValue(field.name, e);
+                                      }}
+                                      {...field}
+                                      value={field.value}
+                                      placeholder="select a player 1"
                                     >
-                                      {season.name}
-                                    </RadixSelect.Item>
-                                  ))}
-                                </Select>
-                              )}
-                            </Field>
-                            {getErrorMessage(`games[${index}].season_id`)}
-                          </div>
+                                      {data.players.map((player) => (
+                                        <RadixSelect.Item
+                                          key={player.id}
+                                          value={player.id.toString()}
+                                          disabled={
+                                            form.values.games.length &&
+                                            form.values.games[index] &&
+                                            form.values.games[index].player2 ===
+                                              player.id
+                                          }
+                                        >
+                                          {player.name}
+                                        </RadixSelect.Item>
+                                      ))}
+                                    </Select>
+                                  )}
+                                </Field>
+                                {getErrorMessage(`games[${index}].player1`)}
+                              </div>
 
-                          {/* tour */}
-                          <div className="flex flex-row items-center gap-1.5 w-1/2">
-                            <span className="text-gray-800">Tour: </span>
-                            <Field
-                              name={`games[${index}].tour_id`}
-                              label="tour"
-                              className="min-w-[100px]"
+                              <span className="text-cyan-600 sm:ml-2.5 max-sm:col-span-1 max-sm:col-start-1">
+                                Points:{" "}
+                              </span>
+                              <Field
+                                className="min-w-[100px]"
+                                name={`games[${index}].player1_score`}
+                                validate={onValidateScore}
+                              >
+                                {({ field, form, meta }: FieldProps) => (
+                                  <TextField.Root
+                                    name="player1-points"
+                                    className="max-sm:col-span-2 max-sm:col-start-2"
+                                    color={comparePoints(
+                                      game.player1_score,
+                                      game.player2_score,
+                                    )}
+                                    variant="soft"
+                                    placeholder="paste points"
+                                    onChange={(e) => {
+                                      form.setFieldValue(
+                                        field.name,
+                                        e.target.value,
+                                      );
+                                    }}
+                                    value={game.player1_score}
+                                  />
+                                )}
+                              </Field>
+                              {errors?.games?.length &&
+                                // @ts-ignore
+                                errors?.games[index]?.player1_score && (
+                                  <div className="text-red-300">
+                                    {/* @ts-ignore */}
+                                    {errors?.games[index].player1_score}
+                                  </div>
+                                )}
+                            </div>
+
+                            {/* player 2 */}
+                            <div
+                              className="flex flex-row 
+              items-center gap-1.5 max-sm:grid max-sm:grid-cols-6 max-sm:items-center 
+              max-sm:p-1 max-sm:border max-sm:border-orange-300 
+              max-sm:rounded-lg"
                             >
-                              {/* @ts-ignore */}
-                              {({ field, form, meta }) => (
-                                <Select
-                                  label="Tour"
-                                  value={field.value}
-                                  onValueChange={(e) => {
-                                    form.setFieldValue(field.name, e);
-                                  }}
-                                  {...field}
-                                  placeholder="Select a season"
+                              <span className="text-gray-800 max-sm:col-span-1 max-sm:col-start-1">
+                                Player 2:{" "}
+                              </span>
+                              <div className="max-sm:col-span-2 max-sm:col-start-2">
+                                <Field
+                                  className="min-w-[100px]"
+                                  name={`games[${index}].player2`}
                                 >
-                                  {game.season_id &&
-                                    data.tours[game.season_id].map((tour) => (
-                                      <RadixSelect.Item
-                                        key={tour.id}
-                                        value={tour.id}
-                                      >
-                                        {tour.name}
-                                      </RadixSelect.Item>
-                                    ))}
-                                </Select>
-                              )}
-                            </Field>
-                            {getErrorMessage(`games[${index}].tour_id`)}
-                          </div>
+                                  {({ field, form, meta }: FieldProps) => (
+                                    <Select
+                                      label="Player2"
+                                      onValueChange={(e) => {
+                                        form.setFieldValue(field.name, e);
+                                      }}
+                                      {...field}
+                                      value={field.value}
+                                      placeholder="select a player 2"
+                                    >
+                                      {data.players.map((player) => (
+                                        <RadixSelect.Item
+                                          key={player.id}
+                                          value={player.id.toString()}
+                                          disabled={
+                                            form.values.games.length &&
+                                            form.values.games[index] &&
+                                            form.values.games[index].player1 ===
+                                              player.id
+                                          }
+                                        >
+                                          {player.name}
+                                        </RadixSelect.Item>
+                                      ))}
+                                    </Select>
+                                  )}
+                                </Field>
+                                {getErrorMessage(`games[${index}].player2`)}
+                              </div>
 
-                          {/* player 1 */}
-                          <div
-                            className="flex flex-row 
-              items-center gap-1.5 max-sm:grid max-sm:grid-cols-6 max-sm:items-center 
-              max-sm:p-1 max-sm:border max-sm:border-orange-300 
-              max-sm:rounded-lg"
-                          >
-                            <span className="text-gray-800 max-sm:col-span-1 max-sm:col-start-1">
-                              Player 1:{" "}
-                            </span>
-
-                            <div className="max-sm:col-span-2 max-sm:col-start-2">
+                              <span className="text-cyan-600 sm:ml-2.5 max-sm:col-span-1 max-sm:col-start-1">
+                                Points:{" "}
+                              </span>
                               <Field
                                 className="min-w-[100px]"
-                                name={`games[${index}].player1`}
+                                name={`games[${index}].player2_score`}
+                                validate={onValidateScore}
                               >
                                 {({ field, form, meta }: FieldProps) => (
-                                  <Select
-                                    label="Player1"
-                                    onValueChange={(e) => {
-                                      form.setFieldValue(field.name, e);
+                                  <TextField.Root
+                                    name="player2-points"
+                                    className="max-sm:col-span-2 max-sm:col-start-2"
+                                    color={comparePoints(
+                                      game.player1_score,
+                                      game.player2_score,
+                                    )}
+                                    variant="soft"
+                                    placeholder="paste points"
+                                    onChange={(e) => {
+                                      form.setFieldValue(
+                                        field.name,
+                                        e.target.value,
+                                      );
                                     }}
-                                    {...field}
-                                    value={field.value}
-                                    placeholder="select a player 1"
-                                  >
-                                    {data.players.map((player) => (
-                                      <RadixSelect.Item
-                                        key={player.id}
-                                        value={player.id.toString()}
-                                        disabled={
-                                          form.values.games[index].player1 ===
-                                          player.id
-                                        }
-                                      >
-                                        {player.name}
-                                      </RadixSelect.Item>
-                                    ))}
-                                  </Select>
+                                    value={game.player2_score}
+                                  />
                                 )}
                               </Field>
-                              {getErrorMessage(`games[${index}].player1`)}
+                              {errors?.games?.length &&
+                                // @ts-ignore
+                                errors?.games[index]?.player2_score && (
+                                  <div className="text-red-300">
+                                    {/* @ts-ignore */}
+                                    {errors?.games[index]?.player2_score}
+                                  </div>
+                                )}
                             </div>
 
-                            <span className="text-cyan-600 sm:ml-2.5 max-sm:col-span-1 max-sm:col-start-1">
-                              Points:{" "}
-                            </span>
-                            <Field
-                              className="min-w-[100px]"
-                              name={`games[${index}].player1_score`}
-                              validate={onValidateScore}
-                            >
-                              {({ field, form, meta }: FieldProps) => (
-                                <TextField.Root
-                                  name="player1-points"
-                                  className="max-sm:col-span-2 max-sm:col-start-2"
-                                  color={comparePoints(
-                                    game.player1_score,
-                                    game.player2_score,
-                                  )}
-                                  variant="soft"
-                                  placeholder="paste points"
-                                  onChange={(e) => {
-                                    form.setFieldValue(
-                                      field.name,
-                                      e.target.value,
-                                    );
-                                  }}
-                                  value={game.player1_score}
-                                />
-                              )}
-                            </Field>
-                            {errors?.games?.length &&
-                              // @ts-ignore
-                              errors?.games[index]?.player1_score && (
-                                <div className="text-red-300">
-                                  {/* @ts-ignore */}
-                                  {errors?.games[index].player1_score}
-                                </div>
-                              )}
-                          </div>
-
-                          {/* player 2 */}
-                          <div
-                            className="flex flex-row 
-              items-center gap-1.5 max-sm:grid max-sm:grid-cols-6 max-sm:items-center 
-              max-sm:p-1 max-sm:border max-sm:border-orange-300 
-              max-sm:rounded-lg"
-                          >
-                            <span className="text-gray-800 max-sm:col-span-1 max-sm:col-start-1">
-                              Player 2:{" "}
-                            </span>
-                            <div className="max-sm:col-span-2 max-sm:col-start-2">
-                              <Field
-                                className="min-w-[100px]"
-                                name={`games[${index}].player2`}
+                            <div className="flex justify-end">
+                              <Button
+                                color="ruby"
+                                disabled={values.games.length === 1}
+                                onClick={() => remove(index)}
                               >
-                                {({ field, form, meta }: FieldProps) => (
-                                  <Select
-                                    label="Player2"
-                                    onValueChange={(e) => {
-                                      form.setFieldValue(field.name, e);
-                                    }}
-                                    {...field}
-                                    value={field.value}
-                                    placeholder="select a player 2"
-                                  >
-                                    {data.players.map((player) => (
-                                      <RadixSelect.Item
-                                        key={player.id}
-                                        value={player.id.toString()}
-                                        disabled={
-                                          form.values.games[index].player1 ===
-                                          player.id
-                                        }
-                                      >
-                                        {player.name}
-                                      </RadixSelect.Item>
-                                    ))}
-                                  </Select>
-                                )}
-                              </Field>
-                              {getErrorMessage(`games[${index}].player2`)}
+                                Remove
+                              </Button>
                             </div>
-
-                            <span className="text-cyan-600 sm:ml-2.5 max-sm:col-span-1 max-sm:col-start-1">
-                              Points:{" "}
-                            </span>
-                            <Field
-                              className="min-w-[100px]"
-                              name={`games[${index}].player2_score`}
-                              validate={onValidateScore}
-                            >
-                              {({ field, form, meta }: FieldProps) => (
-                                <TextField.Root
-                                  name="player2-points"
-                                  className="max-sm:col-span-2 max-sm:col-start-2"
-                                  color={comparePoints(
-                                    game.player1_score,
-                                    game.player2_score,
-                                  )}
-                                  variant="soft"
-                                  placeholder="paste points"
-                                  onChange={(e) => {
-                                    form.setFieldValue(
-                                      field.name,
-                                      e.target.value,
-                                    );
-                                  }}
-                                  value={game.player2_score}
-                                />
-                              )}
-                            </Field>
-                            {errors?.games?.length &&
-                              // @ts-ignore
-                              errors?.games[index]["player2_score"] && (
-                                <div className="text-red-300">
-                                  {/* @ts-ignore */}
-                                  {errors?.games[index]["player2_score"]}
-                                </div>
-                              )}
-                          </div>
-
-                          <div className="flex justify-end">
-                            <Button
-                              color="ruby"
-                              disabled={values.games.length === 1}
-                              onClick={() => remove(index)}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        </Flex>
+                          </Flex>
+                        </motion.div>
                       );
                     })}
 
