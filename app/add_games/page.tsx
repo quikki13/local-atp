@@ -28,6 +28,8 @@ import {
   IResponseData as IInputsData,
   BaseObject,
   ErrCollection,
+  TourKey,
+  SeasonKey,
 } from "./types";
 import { IGamePostData } from "@/app/add_games/types";
 
@@ -111,35 +113,28 @@ export default function Page() {
     // [season_id, player_id, score]
     const seasonsTableData: Array<Array<string | number>> = [];
 
+    const toursHashMap = new Map<TourKey, number>();
+    const seasonsHashMap = new Map<SeasonKey, number>();
+
     const body = values.games.map((item) => {
       const whoIsWinner = (): string => {
-        return +item.player1_score > +item.player2_score
+        return Number(item.player1_score) > Number(item.player2_score)
           ? item.player1
           : item.player2;
       };
 
       const winner = whoIsWinner();
 
-      const tourTableItemIndex = toursTableData.length
-        ? toursTableData.findIndex(
-            (tableItem) =>
-              tableItem[0] === item.season_id &&
-              tableItem[1] === item.tour_id &&
-              tableItem[2] === winner,
-          )
-        : -1;
+      const tourKey: TourKey = `${item.season_id}-${item.tour_id}-${winner}`;
+      const seasonKey: SeasonKey = `${item.season_id}-${winner}`;
 
-      const seasonTableItemIndex = seasonsTableData.length
-        ? seasonsTableData.findIndex(
-            (tableItem) =>
-              tableItem[0] === item.season_id && tableItem[1] === winner,
-          )
-        : -1;
+      let tourTableItemIndex = toursHashMap.get(tourKey); // Получаем индекс по ключу из карты
+      let seasonTableItemIndex = seasonsHashMap.get(seasonKey); // Аналогично для сезона
 
       //
       // Формируем таблцу по турам
       //
-      if (tourTableItemIndex >= 0) {
+      if (tourTableItemIndex) {
         // если в списке уже есть айтем за игру в этом туре для игрока то просто суммируем очки
         (toursTableData[tourTableItemIndex][3] as number) += winnerPoints;
       } else {
@@ -149,16 +144,18 @@ export default function Page() {
           winner,
           winnerPoints,
         ]);
+        toursHashMap.set(tourKey, toursTableData.length - 1); // Сохраняем новый индекс
       }
 
       //
       // Формируем таблцу по сезонам
       //
-      if (seasonTableItemIndex >= 0) {
+      if (seasonTableItemIndex) {
         // если в списке уже есть айтем за игру в этом туре для игрока то просто суммируем очки
         (seasonsTableData[seasonTableItemIndex][2] as number) += winnerPoints;
       } else {
         seasonsTableData.push([item.season_id, winner, winnerPoints]);
+        seasonsHashMap.set(seasonKey, seasonsTableData.length - 1); // Сохраняем новый индекс
       }
 
       return {

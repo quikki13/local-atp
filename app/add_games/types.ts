@@ -34,3 +34,6 @@ export type BaseObject = {
 export interface ErrCollection {
   games: BaseObject[];
 }
+
+export type TourKey = `${string}-${string}-${string}`;
+export type SeasonKey = `${string}-${string}`;
