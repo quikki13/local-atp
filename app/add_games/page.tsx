@@ -24,18 +24,16 @@ import { Select } from "@/components/Select";
 import { URLS } from "@/consts/common";
 
 import {
-  IResponseData,
-  IResponseData as IInputsData,
-  BaseObject,
-  ErrCollection,
-  TourKey,
-  SeasonKey,
-} from "./types";
-import { IGamePostData } from "@/app/add_games/types";
+  onValidateForm,
+  onSubmit,
+  onValidateScore,
+  comparePoints,
+} from "./helpers";
+
+import { IResponseData, IResponseData as IInputsData } from "./types";
 
 export default function Page() {
   const limitGames = 10;
-  const winnerPoints = 3;
 
   const getInitData = (id: string) => {
     return {
@@ -84,95 +82,6 @@ export default function Page() {
     );
   };
 
-  const comparePoints = (currPlayerPoints: string, opponentPoints: string) => {
-    if (
-      !currPlayerPoints ||
-      !opponentPoints ||
-      +currPlayerPoints === +opponentPoints
-    ) {
-      return "indigo";
-    } else {
-      return +currPlayerPoints > +opponentPoints ||
-        +currPlayerPoints < +opponentPoints
-        ? "green"
-        : "red";
-    }
-  };
-
-  const validateScore = (value: string) => {
-    let error;
-    if (typeof +value !== "number" || isNaN(+value)) {
-      error = "Only numbers";
-    }
-    return error;
-  };
-
-  const onSubmit = (values: { games: IGamePostData[] }) => {
-    // [season_id, tour_id, player_id, score] - такой формат требует postgres
-    const toursTableData: Array<Array<string | number>> = [];
-    // [season_id, player_id, score]
-    const seasonsTableData: Array<Array<string | number>> = [];
-
-    const toursHashMap = new Map<TourKey, number>();
-    const seasonsHashMap = new Map<SeasonKey, number>();
-
-    const body = values.games.map((item) => {
-      const whoIsWinner = (): string => {
-        return Number(item.player1_score) > Number(item.player2_score)
-          ? item.player1
-          : item.player2;
-      };
-
-      const winner = whoIsWinner();
-
-      const tourKey: TourKey = `${item.season_id}-${item.tour_id}-${winner}`;
-      const seasonKey: SeasonKey = `${item.season_id}-${winner}`;
-
-      let tourTableItemIndex = toursHashMap.get(tourKey); // Получаем индекс по ключу из карты
-      let seasonTableItemIndex = seasonsHashMap.get(seasonKey); // Аналогично для сезона
-
-      //
-      // Формируем таблцу по турам
-      //
-      if (tourTableItemIndex) {
-        // если в списке уже есть айтем за игру в этом туре для игрока то просто суммируем очки
-        (toursTableData[tourTableItemIndex][3] as number) += winnerPoints;
-      } else {
-        toursTableData.push([
-          item.season_id,
-          item.tour_id,
-          winner,
-          winnerPoints,
-        ]);
-        toursHashMap.set(tourKey, toursTableData.length - 1); // Сохраняем новый индекс
-      }
-
-      //
-      // Формируем таблцу по сезонам
-      //
-      if (seasonTableItemIndex) {
-        // если в списке уже есть айтем за игру в этом туре для игрока то просто суммируем очки
-        (seasonsTableData[seasonTableItemIndex][2] as number) += winnerPoints;
-      } else {
-        seasonsTableData.push([item.season_id, winner, winnerPoints]);
-        seasonsHashMap.set(seasonKey, seasonsTableData.length - 1); // Сохраняем новый индекс
-      }
-
-      return {
-        ...item,
-        winner_points: winnerPoints,
-        winner: winner,
-      };
-    });
-
-    console.log("body", body);
-    console.log("toursTableData", toursTableData);
-    console.log("seasonsTableData", seasonsTableData);
-
-    // body - data for table of games
-    // toursTableData/seasonsTableData - data for tables with points
-  };
-
   return (
     <main className="flex min-h-screen flex-col">
       <div className="bg-green-100 w-full rounded-lg p-2 mt-2">
@@ -182,28 +91,7 @@ export default function Page() {
       <div className="max-w-xl">
         <Formik
           initialValues={{ games: [getInitData(uuidv4())] }}
-          validate={(values) => {
-            let errors: ErrCollection = { games: [] };
-
-            values.games.forEach((item: BaseObject, index) => {
-              // все инпуты должны быть заполнены
-              for (let key in item) {
-                if (!item[key]) {
-                  if (!errors.games[index]) {
-                    errors.games[index] = {};
-                  }
-                  errors.games[index][key] = "Err: empty field";
-                }
-              }
-
-              // Одинаковый счет в партии быть не может
-              if (+item.player1_score === +item.player2_score) {
-                errors.games[index]["player1_score"] = "Err: same values";
-                errors.games[index]["player2_score"] = "Err: same values";
-              }
-            });
-            // return errors.games.length ? errors : null;
-          }}
+          validate={onValidateForm}
           onSubmit={(values, { setSubmitting }) => {
             onSubmit(values);
             setSubmitting(false);
@@ -253,7 +141,7 @@ export default function Page() {
                                 </Select>
                               )}
                             </Field>
-                            {getErrorMessage(`[${index}].season_id`)}
+                            {getErrorMessage(`games[${index}].season_id`)}
                           </div>
 
                           {/* tour */}
@@ -287,7 +175,7 @@ export default function Page() {
                                 </Select>
                               )}
                             </Field>
-                            {getErrorMessage(`[${index}].tour_id`)}
+                            {getErrorMessage(`games[${index}].tour_id`)}
                           </div>
 
                           {/* player 1 */}
@@ -331,7 +219,7 @@ export default function Page() {
                                   </Select>
                                 )}
                               </Field>
-                              {getErrorMessage(`[${index}].player1`)}
+                              {getErrorMessage(`games[${index}].player1`)}
                             </div>
 
                             <span className="text-cyan-600 sm:ml-2.5 max-sm:col-span-1 max-sm:col-start-1">
@@ -340,7 +228,7 @@ export default function Page() {
                             <Field
                               className="min-w-[100px]"
                               name={`games[${index}].player1_score`}
-                              validate={validateScore}
+                              validate={onValidateScore}
                             >
                               {({ field, form, meta }: FieldProps) => (
                                 <TextField.Root
@@ -412,7 +300,7 @@ export default function Page() {
                                   </Select>
                                 )}
                               </Field>
-                              {getErrorMessage(`[${index}].player2`)}
+                              {getErrorMessage(`games[${index}].player2`)}
                             </div>
 
                             <span className="text-cyan-600 sm:ml-2.5 max-sm:col-span-1 max-sm:col-start-1">
@@ -421,7 +309,7 @@ export default function Page() {
                             <Field
                               className="min-w-[100px]"
                               name={`games[${index}].player2_score`}
-                              validate={validateScore}
+                              validate={onValidateScore}
                             >
                               {({ field, form, meta }: FieldProps) => (
                                 <TextField.Root
