@@ -9,6 +9,8 @@ import { URLS } from "@/app/consts/common";
 
 import { ITour } from "@/app/tours/types";
 
+import { IGamePostData } from "@/app/add_games/types";
+
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
 export const createTour = async (data: ITour) => {
@@ -45,19 +47,57 @@ export const createSeason = async (data: { year: string }) => {
   revalidatePath(path);
 };
 
-export const createPlayer = async (data: { name: string, email?: string }) => {
+export const createPlayer = async (data: { name: string; email?: string }) => {
   const { name, email } = data;
   const path = URLS.players;
   try {
     await sql`
     INSERT INTO players (id, name, email, image_url)
-    VALUES (${uuidv4()}, ${name}, ${email || ''}, ${'/players/no-avatar.png'})
+    VALUES (${uuidv4()}, ${name}, ${email || ""}, ${"/players/no-avatar.png"})
   `;
   } catch (err) {
     console.error(err);
   }
   revalidatePath(path);
 };
+
+export const addGames = async (games: IGamePostData[]) => {
+  const path = URLS.players;
+  try {
+    await sql`insert into games ${sql(games)}
+  `;
+  } catch (err) {
+    console.error(err);
+  }
+  revalidatePath(path);
+};
+
+// export const updateSeasonTable = async (data: IndexedObject) => {
+//   const path = URLS.players;
+
+//   const incomedData = Object.entries(data);
+//   try {
+//     await sql`update seasons_table ${sql(games)}
+//   `;
+//   } catch (err) {
+//     console.error(err);
+//   }
+//   revalidatePath(path);
+// };
+
+// export const updateTourTable = async (data: IndexedObject) => {
+//   const path = URLS.players;
+
+//   const incomedData = Object.entries(data);
+
+//   try {
+//     await sql`insert into tours_table ${sql(games)}
+//   `;
+//   } catch (err) {
+//     console.error(err);
+//   }
+//   revalidatePath(path);
+// };
 
 // const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
@@ -89,3 +129,8 @@ export const createPlayer = async (data: { name: string, email?: string }) => {
 //     revalidatePath("/dashboard/invoices");
 
 // }
+
+
+interface IndexedObject {
+  [key: string | number]: number;
+}

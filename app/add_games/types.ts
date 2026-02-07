@@ -22,3 +22,15 @@ export interface IResponseData {
 }
 
 export type SelectType = keyof IGamePostData;
+
+export type BaseObject = {
+  [index: string]: string | number;
+};
+
+// export type ErrObject = {
+//   [index in SelectType]: string | number;
+// };
+
+export interface ErrCollection {
+  games: BaseObject[];
+}

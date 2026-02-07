@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,18 +9,31 @@ import {
   TextField,
 } from "@radix-ui/themes";
 
-import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
+import {
+  Formik,
+  Form,
+  Field,
+  FieldArray,
+  ErrorMessage,
+  FieldProps,
+} from "formik";
 
 import { v4 as uuidv4 } from "uuid";
 
 import { Select } from "@/components/Select";
 import { URLS } from "@/consts/common";
 
-import { IResponseData, IResponseData as IInputsData } from "./types";
+import {
+  IResponseData,
+  IResponseData as IInputsData,
+  BaseObject,
+  ErrCollection,
+} from "./types";
+import { IGamePostData } from "@/app/add_games/types";
 
 export default function Page() {
   const limitGames = 10;
-  const winnerPoints = "3";
+  const winnerPoints = 3;
 
   const getInitData = (id: string) => {
     return {
@@ -39,7 +50,6 @@ export default function Page() {
     };
   };
 
-  const [games, setGames] = useState([getInitData(uuidv4())]);
   const [data, setData] = useState<IInputsData>({
     players: [],
     seasons: [],
@@ -80,7 +90,10 @@ export default function Page() {
     ) {
       return "indigo";
     } else {
-      return +currPlayerPoints > +opponentPoints ? "green" : "red";
+      return +currPlayerPoints > +opponentPoints ||
+        +currPlayerPoints < +opponentPoints
+        ? "green"
+        : "red";
     }
   };
 
@@ -90,6 +103,77 @@ export default function Page() {
       error = "Only numbers";
     }
     return error;
+  };
+
+  const onSubmit = (values: { games: IGamePostData[] }) => {
+    // [season_id, tour_id, player_id, score] - такой формат требует postgres
+    const toursTableData: Array<Array<string | number>> = [];
+    // [season_id, player_id, score]
+    const seasonsTableData: Array<Array<string | number>> = [];
+
+    const body = values.games.map((item) => {
+      const whoIsWinner = (): string => {
+        return +item.player1_score > +item.player2_score
+          ? item.player1
+          : item.player2;
+      };
+
+      const winner = whoIsWinner();
+
+      const tourTableItemIndex = toursTableData.length
+        ? toursTableData.findIndex(
+            (tableItem) =>
+              tableItem[0] === item.season_id &&
+              tableItem[1] === item.tour_id &&
+              tableItem[2] === winner,
+          )
+        : -1;
+
+      const seasonTableItemIndex = seasonsTableData.length
+        ? seasonsTableData.findIndex(
+            (tableItem) =>
+              tableItem[0] === item.season_id && tableItem[1] === winner,
+          )
+        : -1;
+
+      //
+      // Формируем таблцу по турам
+      //
+      if (tourTableItemIndex >= 0) {
+        // если в списке уже есть айтем за игру в этом туре для игрока то просто суммируем очки
+        (toursTableData[tourTableItemIndex][3] as number) += winnerPoints;
+      } else {
+        toursTableData.push([
+          item.season_id,
+          item.tour_id,
+          winner,
+          winnerPoints,
+        ]);
+      }
+
+      //
+      // Формируем таблцу по сезонам
+      //
+      if (seasonTableItemIndex >= 0) {
+        // если в списке уже есть айтем за игру в этом туре для игрока то просто суммируем очки
+        (seasonsTableData[seasonTableItemIndex][2] as number) += winnerPoints;
+      } else {
+        seasonsTableData.push([item.season_id, winner, winnerPoints]);
+      }
+
+      return {
+        ...item,
+        winner_points: winnerPoints,
+        winner: winner,
+      };
+    });
+
+    console.log("body", body);
+    console.log("toursTableData", toursTableData);
+    console.log("seasonsTableData", seasonsTableData);
+
+    // body - data for table of games
+    // toursTableData/seasonsTableData - data for tables with points
   };
 
   return (
@@ -102,10 +186,10 @@ export default function Page() {
         <Formik
           initialValues={{ games: [getInitData(uuidv4())] }}
           validate={(values) => {
-            let errors = { games: [] };
+            let errors: ErrCollection = { games: [] };
 
-            values.games.forEach((item, index) => {
-              // все инпуты должны юыть заполнены
+            values.games.forEach((item: BaseObject, index) => {
+              // все инпуты должны быть заполнены
               for (let key in item) {
                 if (!item[key]) {
                   if (!errors.games[index]) {
@@ -121,26 +205,14 @@ export default function Page() {
                 errors.games[index]["player2_score"] = "Err: same values";
               }
             });
-            return errors;
+            // return errors.games.length ? errors : null;
           }}
-          onSubmit={(values) => {
-            // формируем тело запроса
-            const body = values.games.map((item) => {
-              const whoIsWinner = () => {
-                item.player1_score > item.player2_score
-                  ? item.player1
-                  : item.player2;
-              };
-
-              return {
-                ...item,
-                winner_points: winnerPoints,
-                winner: whoIsWinner(),
-              };
-            });
+          onSubmit={(values, { setSubmitting }) => {
+            onSubmit(values);
+            setSubmitting(false);
           }}
         >
-          {({ values, errors }) => (
+          {({ values, errors, isSubmitting }) => (
             <Form>
               <FieldArray name="games">
                 {({ insert, remove, push }) => (
@@ -237,14 +309,14 @@ export default function Page() {
                                 className="min-w-[100px]"
                                 name={`games[${index}].player1`}
                               >
-                                {({ field, form, meta }) => (
+                                {({ field, form, meta }: FieldProps) => (
                                   <Select
                                     label="Player1"
-                                    value={field.value}
                                     onValueChange={(e) => {
                                       form.setFieldValue(field.name, e);
                                     }}
                                     {...field}
+                                    value={field.value}
                                     placeholder="select a player 1"
                                   >
                                     {data.players.map((player) => (
@@ -273,7 +345,7 @@ export default function Page() {
                               name={`games[${index}].player1_score`}
                               validate={validateScore}
                             >
-                              {({ field, form, meta }) => (
+                              {({ field, form, meta }: FieldProps) => (
                                 <TextField.Root
                                   name="player1-points"
                                   className="max-sm:col-span-2 max-sm:col-start-2"
@@ -294,8 +366,10 @@ export default function Page() {
                               )}
                             </Field>
                             {errors?.games?.length &&
+                              // @ts-ignore
                               errors?.games[index]?.player1_score && (
                                 <div className="text-red-300">
+                                  {/* @ts-ignore */}
                                   {errors?.games[index].player1_score}
                                 </div>
                               )}
@@ -316,14 +390,14 @@ export default function Page() {
                                 className="min-w-[100px]"
                                 name={`games[${index}].player2`}
                               >
-                                {({ field, form, meta }) => (
+                                {({ field, form, meta }: FieldProps) => (
                                   <Select
                                     label="Player2"
-                                    value={field.value}
                                     onValueChange={(e) => {
                                       form.setFieldValue(field.name, e);
                                     }}
                                     {...field}
+                                    value={field.value}
                                     placeholder="select a player 2"
                                   >
                                     {data.players.map((player) => (
@@ -352,7 +426,7 @@ export default function Page() {
                               name={`games[${index}].player2_score`}
                               validate={validateScore}
                             >
-                              {({ field, form, meta }) => (
+                              {({ field, form, meta }: FieldProps) => (
                                 <TextField.Root
                                   name="player2-points"
                                   className="max-sm:col-span-2 max-sm:col-start-2"
@@ -373,9 +447,11 @@ export default function Page() {
                               )}
                             </Field>
                             {errors?.games?.length &&
-                              errors?.games[index]?.player2_score && (
+                              // @ts-ignore
+                              errors?.games[index]["player2_score"] && (
                                 <div className="text-red-300">
-                                  {errors?.games[index].player2_score}
+                                  {/* @ts-ignore */}
+                                  {errors?.games[index]["player2_score"]}
                                 </div>
                               )}
                           </div>
@@ -400,14 +476,16 @@ export default function Page() {
                             Add game
                           </Button>
                         )}
-                        <Button color="green" type="submit">
+                        <Button
+                          color="green"
+                          type="submit"
+                          disabled={isSubmitting}
+                        >
                           Save
                         </Button>
                       </Flex>
                     }
                   </div>
-
-                  // }
                 )}
               </FieldArray>
             </Form>
